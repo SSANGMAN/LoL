@@ -12,4 +12,7 @@ Data consists of a variety of indicator variables that occur within 10 minutes o
 4. Evaluation & Optimization
 
 # Result
+## Baseline Model Feature Importance
+<img src="https://github.com/SSANGMAN/LoL/blob/master/image/Feature%20Importance_RF.png?raw=true">
+
 TO-DO
