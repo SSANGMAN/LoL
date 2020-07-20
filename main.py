@@ -137,7 +137,7 @@ elif algorithm == 'XGB':
         print(f'Total Run Time :{round(end_time/60,2)}')
 
         gc.collect()
-        print("Bayesian Optimization XGBoost Model Mean Accuracy".format(score_mean/k))
+        print("Bayesian Optimization XGBoost Model Mean Accuracy: {}".format(score_mean/k))
 
         del X_tr, X_vl, y_tr, y_vl, clf, score
 
