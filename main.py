@@ -13,20 +13,22 @@ from sklearn.metrics import accuracy_score
 from hyperopt import fmin, hp, tpe, Trials, space_eval, STATUS_OK, STATUS_RUNNING
 from functools import partial
 
+import joblib
 import time
 import gc
 import os
 import warnings
-warnings.filterwarnings('ignore')
-
 import sys
 sys.path.append("./code")
+warnings.filterwarnings('ignore')
+
 from dataset.load import Load_Data
 from preprocessing.preprocessing import DeriveFeature, Preprocess
 from modeling.Validation import KFoldValidation
 from modeling.HyperParameterTuning import RandomForestEvaluation, XGBEvaluation
 
 path = "./dataset"
+model_output_path = "./model"
 als = ['LogisticRegression', 'DecisionTree', 'XGB', 'RandomForest']
 
 algorithm = 'XGB'
@@ -38,7 +40,7 @@ train, test = Load_Data(path, minute = 10, return_test = True, split_size = 0.25
 # 2. Preprocessing
 X_train, X_test, y_train, y_test = Preprocess(train, test, scaling = True)
 
-# 3. Modeling
+# 3. Basic Modeling
 #for al in als:
 #    KFoldValidation(X_train, y_train, algorithm = al, k = 5)
 
@@ -84,7 +86,7 @@ if algorithm == 'RandomForest':
 
         del X_tr, X_vl, y_tr, y_vl, clf, score
 
-        return (score_mean / k)
+        return -(score_mean / k)
 
     space = {'n_estimators' : hp.quniform('n_estimators', 100, 500, 25),
                 'max_depth': hp.choice('max_depth', list(range(10,20,2))),
@@ -119,7 +121,7 @@ elif algorithm == 'XGB':
         score_mean = 0
         
         for tr_idx, val_idx in kf.split(X_train, y_train):
-            clf = XGBClassifier(**params, random_state = 42)
+            clf = XGBClassifier(**params, tree_method = 'gpu_hist', predictor = 'gpu_predictor', random_state = 42, objective='binary:logistic', eval_metric = 'error')
 
             X_tr, X_vl = X_train[tr_idx], X_train[val_idx]
             y_tr, y_vl = y_train.iloc[tr_idx], y_train.iloc[val_idx]
@@ -141,21 +143,40 @@ elif algorithm == 'XGB':
 
         del X_tr, X_vl, y_tr, y_vl, clf, score
 
-        return (score_mean / k)
+        return -(score_mean / k)
 
     space = {
-    'max_depth' : hp.quniform('max_depth', 5, 15, 1),
+    'max_depth' : hp.quniform('max_depth', 3, 10, 1),
     'reg_alpha' : hp.uniform('reg_alpha', 0.01, 0.4),
-    'reg_lambda': hp.uniform('reg_lambda', 0.01, 0.4),
+    'reg_lambda': hp.uniform('reg_lambda', 0.6, 1),
     'learning_rate' : hp.uniform('learning_rate', 0.01, 0.2),
     'colsample_bytree' : hp.uniform('colsample_bytree', 0.3, 0.9),
     'gamma' : hp.uniform('gamma', 0.01, .7),
-    'num_leaves' : hp.choice('num_leaves', list(range(20,150,10))),
-    'min_child_samples': hp.choice('min_child_samples', list(range(100,150,10))),
-    'subsample': hp.choice('subsample', [.2, .4, .5, .6, .7, .8, .9]),
-    'feature_fraction' : hp.uniform('feature_fraction', .4, .8),
-    'bagging_fraction' : hp.uniform('bagging_fraction', .4, .9)
+    'num_leaves' : hp.choice('num_leaves', list(range(10,100,10))),
+    'min_child_samples': hp.choice('min_child_samples', list(range(0,100,10))),
+    'subsample': hp.choice('subsample', [.5, .6, .7, .8, .9, 1]),
+    'feature_fraction' : hp.uniform('feature_fraction', .5, .8),
+    'bagging_fraction' : hp.uniform('bagging_fraction', .5, .9)
 }
 
-best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 3)
+if algorithm == 'RandomForest':
+    best = fmin(fn = RandomForestEvalation, space = space, algo = tpe.suggest, max_eval = 50)
+elif algorithm == 'XGB':
+    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 50)
+
 best_params = space_eval(space, best)
+print("Best HyperParameters: ", best_params)
+best_params['max_depth'] = int(best_params['max_depth'])
+
+## Training Model
+if algorithm == 'RandomForest':
+    clf = RandomForestClassifier(**best_params, random_state = 42)
+elif algorithm == 'XGB':
+    clf = XGBClassifier(**best_params, tree_method = 'gpu_hist', predictor = 'gpu_predictor', random_state = 42, objective='binary:logistic', eval_metric = 'error')
+
+clf.fit(X_train, y_train)
+pred = clf.predict(X_test)
+print("HyperParameter Tuning XGBClassifier Accuracy Score: ", accuracy_score(pred, y_test))
+
+# Save Model
+joblib.dump(clf, os.path.join(model_output_path, 'XGB_{}'.format(round(accuracy_score(pred, y_test), 3))))

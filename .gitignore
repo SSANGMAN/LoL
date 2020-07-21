@@ -45,3 +45,4 @@ dataset/
 *.__pycache__
 .Reference/
 *.vscode/
+*.model/
