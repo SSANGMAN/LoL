@@ -14,5 +14,6 @@ Data consists of a variety of indicator variables that occur within 10 minutes o
 # Result
 ## Baseline Model Accuracy Comparison
 <img src="https://github.com/SSANGMAN/LoL/blob/master/image/baseline_model_comparison.png?raw=true">
+
 ## Baseline Model Feature Importance
 <img src="https://github.com/SSANGMAN/LoL/blob/master/image/Feature%20Importance_RF.png?raw=true">
