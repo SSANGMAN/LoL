@@ -115,8 +115,9 @@ def Preprocess(train_data, test_data, scaling, return_output = False, path = Non
     X_test = test.drop(columns = 'blueWins')
     y_test = test['blueWins']
 
-    print(X_train.shape)
-    print(X_test.shape)
+    print("Preprocessed Train Dataset Shape:",X_train.shape)
+    print("Preprocessed Test Dataset Shape:",X_test.shape)
+    
     if scaling == True:
         scaler = StandardScaler()
 
