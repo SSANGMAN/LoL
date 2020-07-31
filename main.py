@@ -121,7 +121,7 @@ elif algorithm == 'XGB':
         score_mean = 0
         
         for tr_idx, val_idx in kf.split(X_train, y_train):
-            clf = XGBClassifier(**params, tree_method = 'gpu_hist', predictor = 'gpu_predictor', random_state = 42, objective='binary:logistic', eval_metric = 'error')
+            clf = XGBClassifier(**params, random_state = 42, objective='binary:logistic', eval_metric = 'error')
 
             X_tr, X_vl = X_train[tr_idx], X_train[val_idx]
             y_tr, y_vl = y_train.iloc[tr_idx], y_train.iloc[val_idx]
@@ -162,7 +162,7 @@ elif algorithm == 'XGB':
 if algorithm == 'RandomForest':
     best = fmin(fn = RandomForestEvalation, space = space, algo = tpe.suggest, max_eval = 50)
 elif algorithm == 'XGB':
-    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 50)
+    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 3)
 
 best_params = space_eval(space, best)
 print("Best HyperParameters: ", best_params)
@@ -172,7 +172,7 @@ best_params['max_depth'] = int(best_params['max_depth'])
 if algorithm == 'RandomForest':
     clf = RandomForestClassifier(**best_params, random_state = 42)
 elif algorithm == 'XGB':
-    clf = XGBClassifier(**best_params, tree_method = 'gpu_hist', predictor = 'gpu_predictor', random_state = 42, objective='binary:logistic', eval_metric = 'error')
+    clf = XGBClassifier(**best_params, random_state = 42, objective='binary:logistic', eval_metric = 'error')
 
 clf.fit(X_train, y_train)
 pred = clf.predict(X_test)
