@@ -38,7 +38,7 @@ k = 5
 train, test = Load_Data(path, minute = 10, return_test = True, split_size = 0.25)
 
 # 2. Preprocessing
-X_train, X_test, y_train, y_test = Preprocess(train, test, scaling = True)
+X_train, X_test, y_train, y_test = Preprocess(train, test, scaling = False)
 
 # 3. Basic Modeling
 #for al in als:
@@ -162,7 +162,7 @@ elif algorithm == 'XGB':
 if algorithm == 'RandomForest':
     best = fmin(fn = RandomForestEvalation, space = space, algo = tpe.suggest, max_eval = 50)
 elif algorithm == 'XGB':
-    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 3)
+    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 50)
 
 best_params = space_eval(space, best)
 print("Best HyperParameters: ", best_params)

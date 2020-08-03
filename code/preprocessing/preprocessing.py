@@ -20,7 +20,7 @@ def DeriveFeature(data):
 
     return data
 
-def Preprocess(train_data, test_data, scaling, return_output = False, path = None):
+def Preprocess(train_data, test_data, scaling, just_colnames = False):
     """ Preprocessing Dataset
 
     Parameters
@@ -31,13 +31,13 @@ def Preprocess(train_data, test_data, scaling, return_output = False, path = Non
 
     scaling: {boolean} Scaling applicability
 
-    return_output: {boolean}
-
-    path: If return_output == True, input Save path.
+    just_colnames: {boolean} Whether to return only the column names
 
     Returns
     -------
     X_train, X_test, y_train, y_test: {Numpy ndarray}
+
+    If just_colnames is True, col_names: {list}
     """
     train = DeriveFeature(train_data)
     test = DeriveFeature(test_data)
@@ -115,8 +115,7 @@ def Preprocess(train_data, test_data, scaling, return_output = False, path = Non
     X_test = test.drop(columns = 'blueWins')
     y_test = test['blueWins']
 
-    print("Preprocessed Train Dataset Shape:",X_train.shape)
-    print("Preprocessed Test Dataset Shape:",X_test.shape)
+    col_names = X_train.columns.tolist()
     
     if scaling == True:
         scaler = StandardScaler()
@@ -125,12 +124,14 @@ def Preprocess(train_data, test_data, scaling, return_output = False, path = Non
         X_test = scaler.transform(X_test)
 
     elif scaling == False:
-        pass
+        X_train = np.array(X_train)
+        X_test = np.array(X_test)
     
-    if return_output == True:
-        pass
-
+    if just_colnames:
+        print("Just allocating Columns Name.")
+        return col_names
+    
     else:
-        pass
-
-    return X_train, X_test, y_train, y_test
+        print("Preprocessed Train Dataset Shape:",X_train.shape)
+        print("Preprocessed Test Dataset Shape:",X_test.shape)
+        return X_train, X_test, y_train, y_test
