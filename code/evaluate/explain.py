@@ -21,10 +21,10 @@ class ExplainModel:
             plt.show
             
     def SHAP_Value(self, test_data, unit, index = 10, method = 'tree'):
-        if unit == 'individual':
+        explainer = shap.TreeExplainer(self.model)
+        
+        if unit == 'force':
             test_idx = np.array([test_data[index]])
-
-            explainer = shap.TreeExplainer(self.model)
             shap_values = explainer.shap_values(test_idx)
             
             shap.initjs()
@@ -34,3 +34,9 @@ class ExplainModel:
             
             elif str(type(self.model)).split('.')[-1][:-2] == 'RandomForestClassifier':
                 return shap.force_plot(explainer.expected_value[1], shap_values[1], test_idx, feature_names = self.col_names)
+            
+        elif unit == 'summary':
+            shap_values = explainer.shap_values(test_data)
+            shap.initjs()
+            
+            return shap.summary_plot(shap_values, test_data, plot_type = 'bar', feature_names = self.col_names)
