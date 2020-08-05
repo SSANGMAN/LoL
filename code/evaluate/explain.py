@@ -40,3 +40,19 @@ class ExplainModel:
             shap.initjs()
             
             return shap.summary_plot(shap_values, test_data, plot_type = 'bar', feature_names = self.col_names)
+        
+    def PartialDependencePlot(self, train_data, feature_names):
+        feature_index_list = [feature for feature in range(train_data.shape[1])]
+        feature_dict = dict(zip(feature_names_list, feature_index_list))
+    
+        selected_features_idx = []
+        for feature_name in feature_names:
+            selected_features_idx.append(feature_dict[feature_name])
+
+        if len(feature_names) == 2:
+            selected_features_idx.append((selected_features_idx[0], selected_features_idx[1]))
+
+        plot_partial_dependence(self.model, train_data, features = selected_features_idx, feature_names = self.col_names)
+
+        plt.title('Partial Dependence Plot')
+        plt.show()
