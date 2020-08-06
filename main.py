@@ -33,9 +33,10 @@ als = ['LogisticRegression', 'DecisionTree', 'XGB', 'RandomForest']
 
 algorithm = 'XGB'
 k = 5
+minute = 15
 
 # 1. Load Data
-train, test = Load_Data(path, minute = 10, return_test = True, split_size = 0.25)
+train, test = Load_Data(path, minute = minute, return_test = True, split_size = 0.25)
 
 # 2. Preprocessing
 X_train, X_test, y_train, y_test = Preprocess(train, test, scaling = False)
@@ -179,4 +180,4 @@ pred = clf.predict(X_test)
 print("HyperParameter Tuning XGBClassifier Accuracy Score: ", accuracy_score(pred, y_test))
 
 # Save Model
-joblib.dump(clf, os.path.join(model_output_path, 'XGB_{}'.format(round(accuracy_score(pred, y_test), 3))))
+joblib.dump(clf, os.path.join(model_output_path, 'XGB_{}_{}'.format(round(accuracy_score(pred, y_test), 3), minute)))
