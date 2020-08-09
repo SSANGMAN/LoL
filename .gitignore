@@ -33,12 +33,10 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
-# VsCode Work Space#
-####################
-*.code-workspace
-
+# Check Points #
+################
+*.code-workspace/
 *.ipynb_checkpoints/
-*.__pycache__
-.Reference/
+__pycache__/
 *.vscode/
 *.model/

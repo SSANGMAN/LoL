@@ -30,10 +30,10 @@ from modeling.HyperParameterTuning import RandomForestEvaluation, XGBEvaluation
 path = "./dataset"
 model_output_path = "./model"
 als = ['LogisticRegression', 'DecisionTree', 'XGB', 'RandomForest']
-
 algorithm = 'XGB'
 k = 5
 minute = 15
+optimization_iter = 50
 
 # 1. Load Data
 train, test = Load_Data(path, minute = minute, return_test = True, split_size = 0.25)
@@ -161,9 +161,9 @@ elif algorithm == 'XGB':
 }
 
 if algorithm == 'RandomForest':
-    best = fmin(fn = RandomForestEvalation, space = space, algo = tpe.suggest, max_eval = 50)
+    best = fmin(fn = RandomForestEvalation, space = space, algo = tpe.suggest, max_eval = optimization_iter)
 elif algorithm == 'XGB':
-    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = 50)
+    best = fmin(fn = XGBEvaluation, space = space, algo = tpe.suggest, max_evals = optimization_iter)
 
 best_params = space_eval(space, best)
 print("Best HyperParameters: ", best_params)
