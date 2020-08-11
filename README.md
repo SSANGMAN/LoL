@@ -17,3 +17,4 @@ Data consists of a variety of indicator variables that occur within 10 minutes o
 
 ## Baseline Model Feature Importance
 <img src="https://github.com/SSANGMAN/LoL/blob/master/image/Feature%20Importance_RF.png?raw=true">
+The kd/a variable generated as a derived variable showed the highest importance in the baseline random forest model.
